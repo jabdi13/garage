@@ -5,13 +5,14 @@ import { ConfirmationBanner } from '../components/ConfirmationBanner';
 
 export function OrderDetailPage() {
   const { orderId } = useParams<{ orderId: string }>();
-  const { orders, updateOrder } = useOrders();
+  const { orders, updateOrder, deleteOrder } = useOrders();
   const navigate = useNavigate();
 
   const order = orders.find(o => o.id === orderId);
 
   const [isEditMode, setIsEditMode] = useState(false);
   const [showSaveConfirmation, setShowSaveConfirmation] = useState(false);
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
 
   // Form state
   const [make, setMake] = useState('');
@@ -88,6 +89,24 @@ export function OrderDetailPage() {
 
   const handleCancelSave = () => {
     setShowSaveConfirmation(false);
+  };
+
+  const handleDeleteClick = () => {
+    if (order.status === 'delivered') {
+      alert('Cannot delete delivered orders');
+      return;
+    }
+    setShowDeleteConfirmation(true);
+  };
+
+  const handleConfirmDelete = () => {
+    deleteOrder(order.id);
+    setShowDeleteConfirmation(false);
+    navigate('/garage');
+  };
+
+  const handleCancelDelete = () => {
+    setShowDeleteConfirmation(false);
   };
 
   if (isEditMode) {
@@ -281,11 +300,23 @@ export function OrderDetailPage() {
           <button className="btn-edit" onClick={handleEditClick}>
             Edit Order
           </button>
-          <button className="btn-delete" disabled>
-            Delete Order (Coming Soon)
+          <button
+            className="btn-delete"
+            onClick={handleDeleteClick}
+            disabled={order.status === 'delivered'}
+          >
+            Delete Order
           </button>
         </div>
       </div>
+
+      {showDeleteConfirmation && (
+        <ConfirmationBanner
+          message={`Delete order for ${order.vehicle.make} ${order.vehicle.model}? This action cannot be undone.`}
+          onConfirm={handleConfirmDelete}
+          onCancel={handleCancelDelete}
+        />
+      )}
     </div>
   );
 }

@@ -8,6 +8,7 @@ interface OrdersContextType {
   addOrder: (orderData: Omit<RepairOrder, 'id' | 'status' | 'createdAt' | 'updatedAt' | 'completedAt'>) => void;
   updateOrderStatus: (orderId: string, newStatus: OrderStatus) => void;
   updateOrder: (orderId: string, updates: Partial<Pick<RepairOrder, 'vehicle' | 'client' | 'serviceDescription' | 'estimatedCost'>>) => void;
+  deleteOrder: (orderId: string) => void;
 }
 
 const OrdersContext = createContext<OrdersContextType | undefined>(undefined);
@@ -54,8 +55,12 @@ export function OrdersProvider({ children }: { children: ReactNode }) {
     }));
   };
 
+  const deleteOrder = (orderId: string) => {
+    setOrders(orders.filter(order => order.id !== orderId));
+  };
+
   return (
-    <OrdersContext.Provider value={{ orders, addOrder, updateOrderStatus, updateOrder }}>
+    <OrdersContext.Provider value={{ orders, addOrder, updateOrderStatus, updateOrder, deleteOrder }}>
       {children}
     </OrdersContext.Provider>
   );
