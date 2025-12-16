@@ -1,12 +1,28 @@
+import { useState, FormEvent } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useOrders } from '../context/OrdersContext';
+import { ConfirmationBanner } from '../components/ConfirmationBanner';
 
 export function OrderDetailPage() {
   const { orderId } = useParams<{ orderId: string }>();
-  const { orders } = useOrders();
+  const { orders, updateOrder } = useOrders();
   const navigate = useNavigate();
 
   const order = orders.find(o => o.id === orderId);
+
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [showSaveConfirmation, setShowSaveConfirmation] = useState(false);
+
+  // Form state
+  const [make, setMake] = useState('');
+  const [model, setModel] = useState('');
+  const [year, setYear] = useState('');
+  const [licensePlate, setLicensePlate] = useState('');
+  const [clientName, setClientName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
+  const [serviceDescription, setServiceDescription] = useState('');
+  const [estimatedCost, setEstimatedCost] = useState('');
 
   if (!order) {
     return (
@@ -26,6 +42,139 @@ export function OrderDetailPage() {
     completed: 'Completed',
     delivered: 'Delivered'
   };
+
+  const handleEditClick = () => {
+    // Initialize form with current order data
+    setMake(order.vehicle.make);
+    setModel(order.vehicle.model);
+    setYear(order.vehicle.year.toString());
+    setLicensePlate(order.vehicle.licensePlate);
+    setClientName(order.client.name);
+    setPhone(order.client.phone);
+    setEmail(order.client.email);
+    setServiceDescription(order.serviceDescription);
+    setEstimatedCost(order.estimatedCost.toString());
+    setIsEditMode(true);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditMode(false);
+  };
+
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    setShowSaveConfirmation(true);
+  };
+
+  const handleConfirmSave = () => {
+    updateOrder(order.id, {
+      vehicle: {
+        make,
+        model,
+        year: parseInt(year),
+        licensePlate
+      },
+      client: {
+        name: clientName,
+        phone,
+        email
+      },
+      serviceDescription,
+      estimatedCost: parseFloat(estimatedCost)
+    });
+    setShowSaveConfirmation(false);
+    setIsEditMode(false);
+  };
+
+  const handleCancelSave = () => {
+    setShowSaveConfirmation(false);
+  };
+
+  if (isEditMode) {
+    return (
+      <div className="order-detail-page">
+        <div className="detail-header">
+          <h1>Edit Order</h1>
+          <button onClick={handleCancelEdit} className="btn-back">
+            Cancel
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit}>
+          <div className="detail-content">
+            {/* Vehicle Info Card */}
+            <div className="info-card">
+              <h2>Vehicle Information</h2>
+              <div className="form-group">
+                <label>Make</label>
+                <input type="text" value={make} onChange={(e) => setMake(e.target.value)} required />
+              </div>
+              <div className="form-group">
+                <label>Model</label>
+                <input type="text" value={model} onChange={(e) => setModel(e.target.value)} required />
+              </div>
+              <div className="form-group">
+                <label>Year</label>
+                <input type="number" value={year} onChange={(e) => setYear(e.target.value)} required />
+              </div>
+              <div className="form-group">
+                <label>License Plate</label>
+                <input type="text" value={licensePlate} onChange={(e) => setLicensePlate(e.target.value)} required />
+              </div>
+            </div>
+
+            {/* Client Info Card */}
+            <div className="info-card">
+              <h2>Client Information</h2>
+              <div className="form-group">
+                <label>Name</label>
+                <input type="text" value={clientName} onChange={(e) => setClientName(e.target.value)} required />
+              </div>
+              <div className="form-group">
+                <label>Phone</label>
+                <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} required />
+              </div>
+              <div className="form-group">
+                <label>Email</label>
+                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+              </div>
+            </div>
+
+            {/* Service Details Card */}
+            <div className="info-card">
+              <h2>Service Details</h2>
+              <div className="form-group">
+                <label>Service Description</label>
+                <textarea value={serviceDescription} onChange={(e) => setServiceDescription(e.target.value)} required rows={4} />
+              </div>
+              <div className="form-group">
+                <label>Estimated Cost ($)</label>
+                <input type="number" step="0.01" value={estimatedCost} onChange={(e) => setEstimatedCost(e.target.value)} required />
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="detail-actions">
+              <button type="button" onClick={handleCancelEdit} className="btn-cancel">
+                Cancel
+              </button>
+              <button type="submit" className="btn-confirm">
+                Save Changes
+              </button>
+            </div>
+          </div>
+        </form>
+
+        {showSaveConfirmation && (
+          <ConfirmationBanner
+            message={`Save changes to order for ${order.vehicle.make} ${order.vehicle.model}?`}
+            onConfirm={handleConfirmSave}
+            onCancel={handleCancelSave}
+          />
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="order-detail-page">
@@ -129,8 +278,8 @@ export function OrderDetailPage() {
 
         {/* Action Buttons */}
         <div className="detail-actions">
-          <button className="btn-edit" disabled>
-            Edit Order (Coming Soon)
+          <button className="btn-edit" onClick={handleEditClick}>
+            Edit Order
           </button>
           <button className="btn-delete" disabled>
             Delete Order (Coming Soon)
