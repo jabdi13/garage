@@ -1,16 +1,18 @@
 import type { ChangeEvent } from 'react';
 import type { RepairOrder, OrderStatus } from '../types/repairOrder';
-import { useOrders } from '../context/OrdersContext';
 
 interface OrderCardProps {
   order: RepairOrder;
+  onRequestStatusChange: (orderId: string, newStatus: OrderStatus, orderName: string) => void;
 }
 
-export function OrderCard({ order }: OrderCardProps) {
-  const { updateOrderStatus } = useOrders();
-
+export function OrderCard({ order, onRequestStatusChange }: OrderCardProps) {
   const handleStatusChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    updateOrderStatus(order.id, e.target.value as OrderStatus);
+    const newStatus = e.target.value as OrderStatus;
+    if (newStatus !== order.status) {
+      const orderName = `${order.vehicle.make} ${order.vehicle.model} ${order.vehicle.year}`;
+      onRequestStatusChange(order.id, newStatus, orderName);
+    }
   };
 
   return (
