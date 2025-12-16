@@ -183,3 +183,29 @@ body {
   background: #ddd;
   color: #333;
 }
+
+/* Order Detail Page - Basic */
+.order-detail-page {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.info-card {
+  background: white;
+  border: 1px solid #ddd;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.info-card h2 {
+  margin-bottom: 0.5rem;
+}
+
+.btn-back,
+.btn-edit,
+.btn-delete {
+  padding: 0.5rem 1rem;
+  margin-right: 0.5rem;
+  border: 1px solid #ddd;
+  cursor: pointer;
+}

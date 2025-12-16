@@ -1,4 +1,5 @@
 import type { ChangeEvent } from 'react';
+import { useNavigate } from 'react-router-dom';
 import type { RepairOrder, OrderStatus } from '../types/repairOrder';
 
 interface OrderCardProps {
@@ -7,6 +8,8 @@ interface OrderCardProps {
 }
 
 export function OrderCard({ order, onRequestStatusChange }: OrderCardProps) {
+  const navigate = useNavigate();
+
   const handleStatusChange = (e: ChangeEvent<HTMLSelectElement>) => {
     const newStatus = e.target.value as OrderStatus;
     if (newStatus !== order.status) {
@@ -15,8 +18,16 @@ export function OrderCard({ order, onRequestStatusChange }: OrderCardProps) {
     }
   };
 
+  const handleCardClick = () => {
+    navigate(`/garage/order/${order.id}`);
+  };
+
+  const handleSelectClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+  };
+
   return (
-    <div className="order-card">
+    <div className="order-card" onClick={handleCardClick} style={{ cursor: 'pointer' }}>
       <h3>{order.vehicle.make} {order.vehicle.model} {order.vehicle.year}</h3>
       <p>Plate: {order.vehicle.licensePlate}</p>
 
@@ -29,7 +40,11 @@ export function OrderCard({ order, onRequestStatusChange }: OrderCardProps) {
 
       <p>
         Status:{' '}
-        <select value={order.status} onChange={handleStatusChange}>
+        <select
+          value={order.status}
+          onChange={handleStatusChange}
+          onClick={handleSelectClick}
+        >
           <option value="pending">Pending</option>
           <option value="awaiting_approval">Awaiting Approval</option>
           <option value="approved">Approved</option>

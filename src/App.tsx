@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { OrdersProvider } from './context/OrdersContext';
 import { GarageView } from './components/GarageView';
 import { CreateOrderPage } from './pages/CreateOrderPage';
+import { OrderDetailPage } from './pages/OrderDetailPage';
 
 function App() {
   return (
@@ -10,6 +11,7 @@ function App() {
         <Routes>
           <Route path="/garage" element={<GarageView />} />
           <Route path="/garage/new" element={<CreateOrderPage />} />
+          <Route path="/garage/order/:orderId" element={<OrderDetailPage />} />
         </Routes>
       </BrowserRouter>
     </OrdersProvider>
