@@ -1,11 +1,12 @@
 import { createContext, useContext, useState } from 'react';
 import type { ReactNode } from 'react';
-import type { RepairOrder } from '../types/repairOrder';
+import type { RepairOrder, OrderStatus } from '../types/repairOrder';
 import { MOCK_ORDERS } from '../data/mockOrders';
 
 interface OrdersContextType {
   orders: RepairOrder[];
   addOrder: (orderData: Omit<RepairOrder, 'id' | 'status' | 'createdAt' | 'updatedAt' | 'completedAt'>) => void;
+  updateOrderStatus: (orderId: string, newStatus: OrderStatus) => void;
 }
 
 const OrdersContext = createContext<OrdersContextType | undefined>(undefined);
@@ -25,8 +26,22 @@ export function OrdersProvider({ children }: { children: ReactNode }) {
     setOrders([newOrder, ...orders]);
   };
 
+  const updateOrderStatus = (orderId: string, newStatus: OrderStatus) => {
+    setOrders(orders.map(order => {
+      if (order.id === orderId) {
+        return {
+          ...order,
+          status: newStatus,
+          updatedAt: new Date(),
+          completedAt: newStatus === 'completed' ? new Date() : order.completedAt
+        };
+      }
+      return order;
+    }));
+  };
+
   return (
-    <OrdersContext.Provider value={{ orders, addOrder }}>
+    <OrdersContext.Provider value={{ orders, addOrder, updateOrderStatus }}>
       {children}
     </OrdersContext.Provider>
   );

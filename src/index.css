@@ -39,6 +39,14 @@ body {
   margin: 0.25rem 0;
 }
 
+.order-card select {
+  padding: 0.25rem 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
 .new-order-button {
   display: inline-block;
   padding: 0.75rem 1.5rem;
