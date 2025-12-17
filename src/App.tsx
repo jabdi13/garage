@@ -15,6 +15,7 @@ function App() {
           <Route path="/garage/new" element={<CreateOrderPage />} />
           <Route path="/garage/order/:orderId" element={<OrderDetailPage />} />
           <Route path="/client" element={<ClientPortalPage />} />
+          <Route path="/client/new-request" element={<CreateOrderPage isClientView={true} />} />
           <Route path="/client/order/:orderId" element={<ClientOrderDetailPage />} />
         </Routes>
       </BrowserRouter>

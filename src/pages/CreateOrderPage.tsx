@@ -3,7 +3,11 @@ import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useOrders } from '../context/OrdersContext';
 
-export function CreateOrderPage() {
+interface CreateOrderPageProps {
+  isClientView?: boolean;
+}
+
+export function CreateOrderPage({ isClientView = false }: CreateOrderPageProps) {
   const { addOrder } = useOrders();
   const navigate = useNavigate();
 
@@ -34,12 +38,12 @@ export function CreateOrderPage() {
       estimatedCost: 0
     });
 
-    navigate('/garage');
+    navigate(isClientView ? '/client' : '/garage');
   };
 
   return (
     <div className="create-order-page">
-      <h1>Create New Order</h1>
+      <h1>{isClientView ? 'Request New Repair' : 'Create New Order'}</h1>
 
       <form onSubmit={handleSubmit}>
         <div className="form-section">
@@ -79,8 +83,8 @@ export function CreateOrderPage() {
         </div>
 
         <div className="form-actions">
-          <button type="button" onClick={() => navigate('/garage')}>Cancel</button>
-          <button type="submit">Create Order</button>
+          <button type="button" onClick={() => navigate(isClientView ? '/client' : '/garage')}>Cancel</button>
+          <button type="submit">{isClientView ? 'Submit Request' : 'Create Order'}</button>
         </div>
       </form>
     </div>
