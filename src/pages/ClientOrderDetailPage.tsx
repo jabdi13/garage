@@ -1,13 +1,44 @@
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useOrders } from '../context/OrdersContext';
+import { ConfirmationBanner } from '../components/ConfirmationBanner';
 import { getStatusLabel } from '../utils/orderUtils';
 
 export function ClientOrderDetailPage() {
   const { orderId } = useParams<{ orderId: string }>();
-  const { orders } = useOrders();
+  const { orders, respondToProposal } = useOrders();
   const navigate = useNavigate();
 
   const order = orders.find(o => o.id === orderId);
+
+  const [showAcceptConfirmation, setShowAcceptConfirmation] = useState(false);
+  const [showRejectConfirmation, setShowRejectConfirmation] = useState(false);
+
+  const handleAcceptClick = () => {
+    setShowAcceptConfirmation(true);
+  };
+
+  const handleRejectClick = () => {
+    setShowRejectConfirmation(true);
+  };
+
+  const handleConfirmAccept = () => {
+    respondToProposal(order!.id, true);
+    setShowAcceptConfirmation(false);
+  };
+
+  const handleCancelAccept = () => {
+    setShowAcceptConfirmation(false);
+  };
+
+  const handleConfirmReject = () => {
+    respondToProposal(order!.id, false);
+    setShowRejectConfirmation(false);
+  };
+
+  const handleCancelReject = () => {
+    setShowRejectConfirmation(false);
+  };
 
   if (!order) {
     return (
@@ -71,6 +102,21 @@ export function ClientOrderDetailPage() {
           </div>
         </div>
 
+        {order.status === 'awaiting_approval' && (
+          <div className="info-card">
+            <h2>Proposal Approval</h2>
+            <p>This proposal requires your approval before work can begin.</p>
+            <div className="detail-actions">
+              <button className="btn-cancel" onClick={handleRejectClick}>
+                Reject Proposal
+              </button>
+              <button className="btn-confirm" onClick={handleAcceptClick}>
+                Accept Proposal
+              </button>
+            </div>
+          </div>
+        )}
+
         <div className="info-card">
           <h2>Timeline</h2>
           <div className="info-grid">
@@ -97,6 +143,22 @@ export function ClientOrderDetailPage() {
           </div>
         </div>
       </div>
+
+      {showAcceptConfirmation && (
+        <ConfirmationBanner
+          message={`Accept proposal of $${order.estimatedCost.toFixed(2)} for ${order.vehicle.make} ${order.vehicle.model}?`}
+          onConfirm={handleConfirmAccept}
+          onCancel={handleCancelAccept}
+        />
+      )}
+
+      {showRejectConfirmation && (
+        <ConfirmationBanner
+          message={`Reject proposal for ${order.vehicle.make} ${order.vehicle.model}? The mechanic will need to revise.`}
+          onConfirm={handleConfirmReject}
+          onCancel={handleCancelReject}
+        />
+      )}
     </div>
   );
 }
