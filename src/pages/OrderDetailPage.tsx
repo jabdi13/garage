@@ -6,7 +6,7 @@ import { getStatusLabel } from '../utils/orderUtils';
 
 export function OrderDetailPage() {
   const { orderId } = useParams<{ orderId: string }>();
-  const { orders, updateOrder, deleteOrder } = useOrders();
+  const { orders, updateOrder, deleteOrder, submitProposal } = useOrders();
   const navigate = useNavigate();
 
   const order = orders.find(o => o.id === orderId);
@@ -14,8 +14,11 @@ export function OrderDetailPage() {
   const [isEditMode, setIsEditMode] = useState(false);
   const [showSaveConfirmation, setShowSaveConfirmation] = useState(false);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+  const [showProposalForm, setShowProposalForm] = useState(false);
+  const [proposalCost, setProposalCost] = useState('');
+  const [proposalDescription, setProposalDescription] = useState('');
+  const [showProposalConfirmation, setShowProposalConfirmation] = useState(false);
 
-  // Form state
   const [make, setMake] = useState('');
   const [model, setModel] = useState('');
   const [year, setYear] = useState('');
@@ -37,7 +40,6 @@ export function OrderDetailPage() {
   }
 
   const handleEditClick = () => {
-    // Initialize form with current order data
     setMake(order.vehicle.make);
     setModel(order.vehicle.model);
     setYear(order.vehicle.year.toString());
@@ -101,6 +103,34 @@ export function OrderDetailPage() {
     setShowDeleteConfirmation(false);
   };
 
+  const handleSubmitProposalClick = () => {
+    setProposalDescription('');
+    setShowProposalForm(true);
+  };
+
+  const handleProposalSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    setShowProposalConfirmation(true);
+  };
+
+  const handleConfirmProposal = () => {
+    submitProposal(order.id, proposalDescription, parseFloat(proposalCost));
+    setShowProposalConfirmation(false);
+    setShowProposalForm(false);
+    setProposalCost('');
+    setProposalDescription('');
+  };
+
+  const handleCancelProposal = () => {
+    setShowProposalConfirmation(false);
+  };
+
+  const handleCancelProposalForm = () => {
+    setShowProposalForm(false);
+    setProposalCost('');
+    setProposalDescription('');
+  };
+
   if (isEditMode) {
     return (
       <div className="order-detail-page">
@@ -113,7 +143,6 @@ export function OrderDetailPage() {
 
         <form onSubmit={handleSubmit}>
           <div className="detail-content">
-            {/* Vehicle Info Card */}
             <div className="info-card">
               <h2>Vehicle Information</h2>
               <div className="form-group">
@@ -134,7 +163,6 @@ export function OrderDetailPage() {
               </div>
             </div>
 
-            {/* Client Info Card */}
             <div className="info-card">
               <h2>Client Information</h2>
               <div className="form-group">
@@ -151,7 +179,6 @@ export function OrderDetailPage() {
               </div>
             </div>
 
-            {/* Service Details Card */}
             <div className="info-card">
               <h2>Service Details</h2>
               <div className="form-group">
@@ -164,7 +191,6 @@ export function OrderDetailPage() {
               </div>
             </div>
 
-            {/* Action Buttons */}
             <div className="detail-actions">
               <button type="button" onClick={handleCancelEdit} className="btn-cancel">
                 Cancel
@@ -197,7 +223,6 @@ export function OrderDetailPage() {
       </div>
 
       <div className="detail-content">
-        {/* Vehicle Info Card */}
         <div className="info-card">
           <h2>Vehicle Information</h2>
           <div className="info-grid">
@@ -220,7 +245,6 @@ export function OrderDetailPage() {
           </div>
         </div>
 
-        {/* Client Info Card */}
         <div className="info-card">
           <h2>Client Information</h2>
           <div className="info-grid">
@@ -239,17 +263,20 @@ export function OrderDetailPage() {
           </div>
         </div>
 
-        {/* Service Details Card */}
         <div className="info-card">
           <h2>Service Details</h2>
           <div className="info-grid">
             <div className="info-item full-width">
               <span className="info-label">Description:</span>
-              <span className="info-value">{order.serviceDescription}</span>
+              <span className="info-value">
+                {order.serviceDescription || 'Pending evaluation'}
+              </span>
             </div>
             <div className="info-item">
               <span className="info-label">Estimated Cost:</span>
-              <span className="info-value">${order.estimatedCost.toFixed(2)}</span>
+              <span className="info-value">
+                {order.estimatedCost === 0 ? 'Pending Estimate' : `$${order.estimatedCost.toFixed(2)}`}
+              </span>
             </div>
             <div className="info-item">
               <span className="info-label">Status:</span>
@@ -260,7 +287,52 @@ export function OrderDetailPage() {
           </div>
         </div>
 
-        {/* Timeline Card */}
+        {order.status === 'pending' && !showProposalForm && (
+          <div className="info-card">
+            <h2>Proposal</h2>
+            <p>This order is pending a cost estimate.</p>
+            <button className="btn-confirm" onClick={handleSubmitProposalClick}>
+              Submit Proposal
+            </button>
+          </div>
+        )}
+
+        {order.status === 'pending' && showProposalForm && (
+          <div className="info-card">
+            <h2>Submit Proposal</h2>
+            <form onSubmit={handleProposalSubmit}>
+              <div className="form-group">
+                <label>Service Description</label>
+                <textarea
+                  value={proposalDescription}
+                  onChange={(e) => setProposalDescription(e.target.value)}
+                  required
+                  rows={4}
+                />
+              </div>
+              <div className="form-group">
+                <label>Estimated Cost ($)</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={proposalCost}
+                  onChange={(e) => setProposalCost(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="detail-actions">
+                <button type="button" onClick={handleCancelProposalForm} className="btn-cancel">
+                  Cancel
+                </button>
+                <button type="submit" className="btn-confirm">
+                  Submit Proposal
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+
         <div className="info-card">
           <h2>Timeline</h2>
           <div className="info-grid">
@@ -287,7 +359,6 @@ export function OrderDetailPage() {
           </div>
         </div>
 
-        {/* Action Buttons */}
         <div className="detail-actions">
           <button className="btn-edit" onClick={handleEditClick}>
             Edit Order
@@ -307,6 +378,14 @@ export function OrderDetailPage() {
           message={`Delete order for ${order.vehicle.make} ${order.vehicle.model}? This action cannot be undone.`}
           onConfirm={handleConfirmDelete}
           onCancel={handleCancelDelete}
+        />
+      )}
+
+      {showProposalConfirmation && (
+        <ConfirmationBanner
+          message={`Submit proposal of $${parseFloat(proposalCost).toFixed(2)} to client?`}
+          onConfirm={handleConfirmProposal}
+          onCancel={handleCancelProposal}
         />
       )}
     </div>

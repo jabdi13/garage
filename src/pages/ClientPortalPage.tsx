@@ -23,7 +23,7 @@ export function ClientPortalPage() {
               <h3>{order.vehicle.make} {order.vehicle.model} {order.vehicle.year}</h3>
               <p>License Plate: {order.vehicle.licensePlate}</p>
 
-              <p className="order-description">{order.serviceDescription}</p>
+              <p className="order-description">{order.serviceDescription || 'Pending evaluation'}</p>
 
               <div className="order-footer">
                 <span className="order-cost">${order.estimatedCost.toFixed(2)}</span>

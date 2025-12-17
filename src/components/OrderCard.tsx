@@ -35,7 +35,7 @@ export function OrderCard({ order, onRequestStatusChange }: OrderCardProps) {
       <p>Phone: {order.client.phone}</p>
       <p>Email: {order.client.email}</p>
 
-      <p>Service: {order.serviceDescription}</p>
+      <p>Service: {order.serviceDescription || 'Pending evaluation'}</p>
       <p>Cost: ${order.estimatedCost}</p>
 
       <p>

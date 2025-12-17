@@ -9,6 +9,7 @@ interface OrdersContextType {
   updateOrderStatus: (orderId: string, newStatus: OrderStatus) => void;
   updateOrder: (orderId: string, updates: Partial<Pick<RepairOrder, 'vehicle' | 'client' | 'serviceDescription' | 'estimatedCost'>>) => void;
   deleteOrder: (orderId: string) => void;
+  submitProposal: (orderId: string, serviceDescription: string, estimatedCost: number) => void;
 }
 
 const OrdersContext = createContext<OrdersContextType | undefined>(undefined);
@@ -59,8 +60,23 @@ export function OrdersProvider({ children }: { children: ReactNode }) {
     setOrders(orders.filter(order => order.id !== orderId));
   };
 
+  const submitProposal = (orderId: string, serviceDescription: string, estimatedCost: number) => {
+    setOrders(orders.map(order => {
+      if (order.id === orderId) {
+        return {
+          ...order,
+          serviceDescription,
+          estimatedCost,
+          status: 'awaiting_approval' as OrderStatus,
+          updatedAt: new Date()
+        };
+      }
+      return order;
+    }));
+  };
+
   return (
-    <OrdersContext.Provider value={{ orders, addOrder, updateOrderStatus, updateOrder, deleteOrder }}>
+    <OrdersContext.Provider value={{ orders, addOrder, updateOrderStatus, updateOrder, deleteOrder, submitProposal }}>
       {children}
     </OrdersContext.Provider>
   );

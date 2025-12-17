@@ -14,8 +14,6 @@ export function CreateOrderPage() {
   const [clientName, setClientName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
-  const [serviceDescription, setServiceDescription] = useState('');
-  const [estimatedCost, setEstimatedCost] = useState('');
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -32,8 +30,8 @@ export function CreateOrderPage() {
         phone,
         email
       },
-      serviceDescription,
-      estimatedCost: parseFloat(estimatedCost)
+      serviceDescription: '',
+      estimatedCost: 0
     });
 
     navigate('/garage');
@@ -77,18 +75,6 @@ export function CreateOrderPage() {
           <div className="form-group">
             <label>Email</label>
             <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-          </div>
-        </div>
-
-        <div className="form-section">
-          <h2>Service Details</h2>
-          <div className="form-group">
-            <label>Service Description</label>
-            <textarea value={serviceDescription} onChange={(e) => setServiceDescription(e.target.value)} required rows={4} />
-          </div>
-          <div className="form-group">
-            <label>Estimated Cost ($)</label>
-            <input type="number" step="0.01" value={estimatedCost} onChange={(e) => setEstimatedCost(e.target.value)} required />
           </div>
         </div>
 

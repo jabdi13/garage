@@ -29,7 +29,6 @@ export function ClientOrderDetailPage() {
       </div>
 
       <div className="detail-content">
-        {/* Vehicle Info Card */}
         <div className="info-card">
           <h2>Vehicle Information</h2>
           <div className="info-grid">
@@ -52,13 +51,12 @@ export function ClientOrderDetailPage() {
           </div>
         </div>
 
-        {/* Service Details Card */}
         <div className="info-card">
           <h2>Service Details</h2>
           <div className="info-grid">
             <div className="info-item full-width">
               <span className="info-label">Description:</span>
-              <span className="info-value">{order.serviceDescription}</span>
+              <span className="info-value">{order.serviceDescription || 'Pending evaluation'}</span>
             </div>
             <div className="info-item">
               <span className="info-label">Estimated Cost:</span>
@@ -73,7 +71,6 @@ export function ClientOrderDetailPage() {
           </div>
         </div>
 
-        {/* Timeline Card */}
         <div className="info-card">
           <h2>Timeline</h2>
           <div className="info-grid">
