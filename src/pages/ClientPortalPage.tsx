@@ -1,18 +1,10 @@
 import { useNavigate } from 'react-router-dom';
 import { useOrders } from '../context/OrdersContext';
+import { getStatusLabel } from '../utils/orderUtils';
 
 export function ClientPortalPage() {
   const { orders } = useOrders();
   const navigate = useNavigate();
-
-  const statusLabels: Record<string, string> = {
-    pending: 'Pending',
-    awaiting_approval: 'Awaiting Approval',
-    approved: 'Approved',
-    in_progress: 'In Progress',
-    completed: 'Completed',
-    delivered: 'Delivered'
-  };
 
   return (
     <div className="client-portal">
@@ -36,7 +28,7 @@ export function ClientPortalPage() {
               <div className="order-footer">
                 <span className="order-cost">${order.estimatedCost.toFixed(2)}</span>
                 <span className={`order-status status-${order.status}`}>
-                  {statusLabels[order.status]}
+                  {getStatusLabel(order.status)}
                 </span>
               </div>
             </div>

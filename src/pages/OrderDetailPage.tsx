@@ -2,6 +2,7 @@ import { useState, FormEvent } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useOrders } from '../context/OrdersContext';
 import { ConfirmationBanner } from '../components/ConfirmationBanner';
+import { getStatusLabel } from '../utils/orderUtils';
 
 export function OrderDetailPage() {
   const { orderId } = useParams<{ orderId: string }>();
@@ -34,15 +35,6 @@ export function OrderDetailPage() {
       </div>
     );
   }
-
-  const statusLabels: Record<string, string> = {
-    pending: 'Pending',
-    awaiting_approval: 'Awaiting Approval',
-    approved: 'Approved',
-    in_progress: 'In Progress',
-    completed: 'Completed',
-    delivered: 'Delivered'
-  };
 
   const handleEditClick = () => {
     // Initialize form with current order data
@@ -262,7 +254,7 @@ export function OrderDetailPage() {
             <div className="info-item">
               <span className="info-label">Status:</span>
               <span className={`info-value status-${order.status}`}>
-                {statusLabels[order.status]}
+                {getStatusLabel(order.status)}
               </span>
             </div>
           </div>

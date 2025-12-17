@@ -5,6 +5,7 @@ import type { OrderStatus } from '../types/repairOrder';
 import { OrderList } from './OrderList';
 import { ConfirmationBanner } from './ConfirmationBanner';
 import { OrderFilters } from './OrderFilters';
+import { getStatusLabel } from '../utils/orderUtils';
 
 export function GarageView() {
   const { orders, updateOrderStatus } = useOrders();
@@ -16,18 +17,6 @@ export function GarageView() {
 
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState<string>('');
-
-  const formatStatus = (status: OrderStatus) => {
-    const labels = {
-      pending: 'Pending',
-      awaiting_approval: 'Awaiting Approval',
-      approved: 'Approved',
-      in_progress: 'In Progress',
-      completed: 'Completed',
-      delivered: 'Delivered'
-    };
-    return labels[status];
-  };
 
   const handleRequestStatusChange = (orderId: string, newStatus: OrderStatus, orderName: string) => {
     setPendingStatusChange({ orderId, newStatus, orderName });
@@ -63,7 +52,7 @@ export function GarageView() {
     <div className="garage-view">
       {pendingStatusChange && (
         <ConfirmationBanner
-          message={`Change ${pendingStatusChange.orderName} status to ${formatStatus(pendingStatusChange.newStatus)}?`}
+          message={`Change ${pendingStatusChange.orderName} status to ${getStatusLabel(pendingStatusChange.newStatus)}?`}
           onConfirm={handleConfirmStatusChange}
           onCancel={handleCancelStatusChange}
         />
