@@ -4,6 +4,7 @@ import { useOrders } from '../context/OrdersContext';
 import type { OrderStatus } from '../types/repairOrder';
 import { OrderList } from './OrderList';
 import { ConfirmationBanner } from './ConfirmationBanner';
+import { OrderFilters } from './OrderFilters';
 
 export function GarageView() {
   const { orders, updateOrderStatus } = useOrders();
@@ -12,6 +13,9 @@ export function GarageView() {
     newStatus: OrderStatus;
     orderName: string;
   } | null>(null);
+
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [searchTerm, setSearchTerm] = useState<string>('');
 
   const formatStatus = (status: OrderStatus) => {
     const labels = {
@@ -40,6 +44,21 @@ export function GarageView() {
     setPendingStatusChange(null);
   };
 
+  const handleClearFilters = () => {
+    setStatusFilter('all');
+    setSearchTerm('');
+  };
+
+  const filteredOrders = orders.filter(order => {
+    const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
+    const matchesSearch =
+      searchTerm === '' ||
+      order.client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.vehicle.licensePlate.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      `${order.vehicle.make} ${order.vehicle.model}`.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesStatus && matchesSearch;
+  });
+
   return (
     <div className="garage-view">
       {pendingStatusChange && (
@@ -51,7 +70,20 @@ export function GarageView() {
       )}
       <h1>Repair Orders</h1>
       <Link to="/garage/new" className="new-order-button">+ New Order</Link>
-      <OrderList orders={orders} onRequestStatusChange={handleRequestStatusChange} />
+
+      <OrderFilters
+        statusFilter={statusFilter}
+        searchTerm={searchTerm}
+        onStatusFilterChange={setStatusFilter}
+        onSearchTermChange={setSearchTerm}
+        onClearFilters={handleClearFilters}
+      />
+
+      <p className="order-count">
+        Showing {filteredOrders.length} of {orders.length} orders
+      </p>
+
+      <OrderList orders={filteredOrders} onRequestStatusChange={handleRequestStatusChange} />
     </div>
   );
 }
